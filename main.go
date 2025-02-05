@@ -33,6 +33,10 @@ func exitOnError(err error) {
 	os.Exit(1)
 }
 
+type CopyOptions struct {
+	overwriteExistingFiles bool
+}
+
 func main() {
 	flaggy.SetName("copy")
 	flaggy.SetName("Simple and intuitive CLI copy alternative")
@@ -43,6 +47,9 @@ func main() {
 
 	var destPath string
 	flaggy.AddPositionalValue(&destPath, "dest_path", 2, true, "The destination file or directory to copy to")
+
+	var copyOptions = CopyOptions{}
+	flaggy.Bool(&copyOptions.overwriteExistingFiles, "o", "overwrite-existing-files", "Should existing files have their contents overwritten? (Default: false)")
 
 	flaggy.Parse()
 
@@ -58,4 +65,6 @@ func main() {
 	} else {
 		fmt.Println(destInfo.Name())
 	}
+
+	fmt.Println(copyOptions)
 }
