@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/integrii/flaggy"
+	cp "github.com/otiai10/copy"
 )
 
 func validateFilePath(path string, shouldExist bool) (os.FileInfo, error) {
@@ -37,6 +38,24 @@ type CopyOptions struct {
 	overwriteExistingFiles bool
 }
 
+type ElementInfo struct {
+	path string
+	info os.FileInfo
+}
+
+func handleCopy(source ElementInfo, dest ElementInfo, opts CopyOptions) error {
+	if dest.info != nil && !opts.overwriteExistingFiles {
+		return fmt.Errorf("destination file exists, but overwriteExistingFiles is set to false. (Did you forget --overwrite-existing-files): %v", dest.path)
+	}
+
+	err := os.RemoveAll(dest.path)
+	if err != nil {
+		return err
+	}
+
+	return cp.Copy(source.path, dest.path, cp.Options{})
+}
+
 func main() {
 	flaggy.SetName("copy")
 	flaggy.SetName("Simple and intuitive CLI copy alternative")
@@ -56,15 +75,19 @@ func main() {
 	sourceInfo, err := validateFilePath(sourcePath, true)
 	exitOnError(err)
 
+	sourceElement := ElementInfo{
+		path: sourcePath,
+		info: sourceInfo,
+	}
+
 	destInfo, err := validateFilePath(destPath, false)
 	exitOnError(err)
 
-	fmt.Println(sourceInfo.Name())
-	if destInfo == nil {
-		fmt.Println(destPath)
-	} else {
-		fmt.Println(destInfo.Name())
+	destElement := ElementInfo{
+		path: destPath,
+		info: destInfo,
 	}
 
-	fmt.Println(copyOptions)
+	err = handleCopy(sourceElement, destElement, copyOptions)
+	exitOnError(err)
 }
