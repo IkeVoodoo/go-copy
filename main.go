@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/IkeVoodoo/go-copy/copy"
 	"github.com/integrii/flaggy"
 	cp "github.com/otiai10/copy"
 )
@@ -38,22 +39,17 @@ type CopyOptions struct {
 	overwriteExistingFiles bool
 }
 
-type ElementInfo struct {
-	path string
-	info os.FileInfo
-}
-
-func handleCopy(source ElementInfo, dest ElementInfo, opts CopyOptions) error {
-	if dest.info != nil && !opts.overwriteExistingFiles {
-		return fmt.Errorf("destination file exists, but overwriteExistingFiles is set to false. (Did you forget --overwrite-existing-files): %v", dest.path)
+func handleCopy(source copy.ElementInfo, dest copy.ElementInfo, opts CopyOptions) error {
+	if dest.Info != nil && !opts.overwriteExistingFiles {
+		return fmt.Errorf("destination file exists, but overwriteExistingFiles is set to false. (Did you forget --overwrite-existing-files): %v", dest.Path)
 	}
 
-	err := os.RemoveAll(dest.path)
+	err := os.RemoveAll(dest.Path)
 	if err != nil {
 		return err
 	}
 
-	return cp.Copy(source.path, dest.path, cp.Options{})
+	return cp.Copy(source.Path, dest.Path, cp.Options{})
 }
 
 func main() {
@@ -75,17 +71,17 @@ func main() {
 	sourceInfo, err := validateFilePath(sourcePath, true)
 	exitOnError(err)
 
-	sourceElement := ElementInfo{
-		path: sourcePath,
-		info: sourceInfo,
+	sourceElement := copy.ElementInfo{
+		Path: sourcePath,
+		Info: sourceInfo,
 	}
 
 	destInfo, err := validateFilePath(destPath, false)
 	exitOnError(err)
 
-	destElement := ElementInfo{
-		path: destPath,
-		info: destInfo,
+	destElement := copy.ElementInfo{
+		Path: destPath,
+		Info: destInfo,
 	}
 
 	err = handleCopy(sourceElement, destElement, copyOptions)
