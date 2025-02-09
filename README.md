@@ -28,7 +28,7 @@ Installing `go-copy` is pretty straightforward:
 ### With go
 ```sh
 go install github.com/IkeVoodoo/go-copy/
-~~~
+```
 
 ### From source
 ```sh
