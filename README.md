@@ -25,12 +25,12 @@ go-copy - Simple and intuitive CLI copy alternative
 ## Installing
 Installing `go-copy` is pretty straightforward:
 
-### With go
+### Install with go
 ```sh
 go install github.com/IkeVoodoo/go-copy/
 ```
 
-### From source
+### Install from source
 ```sh
 git clone https://github.com/IkeVoodoo/go-copy/
 cd co-copy
@@ -40,5 +40,14 @@ go install
 ### From releases
 <TODO: Releases not published yet!>
 
+
+## Building
+To build `go-copy` from source do:
+
+```sh
+git clone https://github.com/IkeVoodoo/go-copy/
+cd co-copy
+go build
+```
 ### NixOS
 <TODO: flake not ready yet!>
