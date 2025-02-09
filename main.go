@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/IkeVoodoo/go-copy/copy"
 	"github.com/integrii/flaggy"
-	cp "github.com/otiai10/copy"
+	"github.com/schollz/progressbar/v3"
 )
 
 func validateFilePath(path string, shouldExist bool) (os.FileInfo, error) {
@@ -35,26 +36,27 @@ func exitOnError(err error) {
 	os.Exit(1)
 }
 
-type CopyOptions struct {
-	overwriteExistingFiles bool
-}
+func expandOptions(slice []string) []string {
+	var result []string
 
-func handleCopy(source copy.ElementInfo, dest copy.ElementInfo, opts CopyOptions) error {
-	if dest.Info != nil && !opts.overwriteExistingFiles {
-		return fmt.Errorf("destination file exists, but overwriteExistingFiles is set to false. (Did you forget --overwrite-existing-files): %v", dest.Path)
+	for _, item := range slice {
+		if len(item) > 2 && item[0] == '-' && item[1] != '-' {
+			for _, char := range item[1:] {
+				result = append(result, "-"+string(char))
+			}
+
+			continue
+		}
+
+		result = append(result, item)
 	}
 
-	err := os.RemoveAll(dest.Path)
-	if err != nil {
-		return err
-	}
-
-	return cp.Copy(source.Path, dest.Path, cp.Options{})
+	return result
 }
 
 func main() {
-	flaggy.SetName("copy")
-	flaggy.SetName("Simple and intuitive CLI copy alternative")
+	flaggy.SetName("go-copy")
+	flaggy.SetDescription("Simple and intuitive CLI copy alternative")
 	flaggy.SetVersion("1.0.0")
 
 	var sourcePath string
@@ -63,10 +65,10 @@ func main() {
 	var destPath string
 	flaggy.AddPositionalValue(&destPath, "dest_path", 2, true, "The destination file or directory to copy to")
 
-	var copyOptions = CopyOptions{}
-	flaggy.Bool(&copyOptions.overwriteExistingFiles, "o", "overwrite-existing-files", "Should existing files have their contents overwritten? (Default: false)")
+	var copyOptions copy.CopyOptions
+	copyOptions.InitializeOptionFlags()
 
-	flaggy.Parse()
+	flaggy.ParseArgs(expandOptions(os.Args[1:]))
 
 	sourceInfo, err := validateFilePath(sourcePath, true)
 	exitOnError(err)
@@ -84,6 +86,19 @@ func main() {
 		Info: destInfo,
 	}
 
-	err = handleCopy(sourceElement, destElement, copyOptions)
+	max := int64(-1)
+	if copyOptions.ScanSourcePath {
+		var discovery copy.DiscoverResult
+		discovery.PopulateFromPath(sourceElement)
+
+		max = int64(discovery.SizeTotal)
+	}
+
+	var progress io.Writer
+	if copyOptions.ProgressBarVisible {
+		progress = progressbar.DefaultBytes(max, fmt.Sprintf("Copying %v to %v", sourcePath, destPath))
+	}
+
+	err = copy.Copy(sourceElement, destElement, copyOptions, progress)
 	exitOnError(err)
 }
