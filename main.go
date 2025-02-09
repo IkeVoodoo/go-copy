@@ -86,6 +86,12 @@ func main() {
 		Info: destInfo,
 	}
 
+	if copyOptions.EnableAll {
+		copyOptions.OverwriteExistingFiles = true
+		copyOptions.ProgressBarVisible = true
+		copyOptions.ScanSourcePath = true
+	}
+
 	max := int64(-1)
 	if copyOptions.ScanSourcePath {
 		var discovery copy.DiscoverResult

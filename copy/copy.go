@@ -15,6 +15,7 @@ type CopyOptions struct {
 	ScanSourcePath         bool
 	ProgressBarVisible     bool
 	BufferSize             int64
+	EnableAll              bool
 }
 
 type CopyCallback func(path string, isDir bool, writtenBytes int) error
@@ -36,6 +37,8 @@ func (options *CopyOptions) InitializeOptionFlags() {
 		"chunk-size",
 		"What chunk size (in bytes) should be used to copy files? A larger chunk size may result in faster speeds, at the cost of memory usage.",
 	)
+
+	flaggy.Bool(&options.EnableAll, "a", "all", "Should all flags be enabled?")
 }
 
 func copyFileUnsafe(source ElementInfo, dest ElementInfo, otherWriter io.Writer) error {
