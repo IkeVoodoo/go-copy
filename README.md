@@ -40,6 +40,9 @@ go install
 ### From releases
 <TODO: Releases not published yet!>
 
+### NixOS
+<TODO: flake not ready yet!>
+
 
 ## Building
 To build `go-copy` from source do:
@@ -49,5 +52,3 @@ git clone https://github.com/IkeVoodoo/go-copy/
 cd co-copy
 go build
 ```
-### NixOS
-<TODO: flake not ready yet!>
