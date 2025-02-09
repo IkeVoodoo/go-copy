@@ -37,10 +37,10 @@ cd co-copy
 go install
 ```
 
-### From releases
+### Install from releases
 <TODO: Releases not published yet!>
 
-### NixOS
+### Install from Nixpkgs
 <TODO: flake not ready yet!>
 
 
